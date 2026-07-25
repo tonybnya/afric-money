@@ -270,6 +270,12 @@ h1, h2, h3 {
 .quick-action:hover .quick-action-icon {
   background: #c8ece9;
 }
+.quick-action-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: block;
+}
 .quick-action span {
   font-size: 0.78rem;
   font-weight: 600;

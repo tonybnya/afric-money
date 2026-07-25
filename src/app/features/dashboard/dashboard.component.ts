@@ -85,25 +85,25 @@ const MOCK_TX: Transaction[] = [
           <div class="quick-actions" role="group" aria-label="Actions rapides">
             <button type="button" class="quick-action" id="btn-send" (click)="openSend()">
               <div class="quick-action-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
+                <img src="/icons/Send-money.png" alt="" width="24" height="24" class="quick-action-img" />
               </div>
               <span>Send<br>Money</span>
             </button>
             <button type="button" class="quick-action" id="btn-add" (click)="openAdd()">
               <div class="quick-action-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M16 12h-4m0 0H8m4 0V9m0 3v3"/></svg>
+                <img src="/icons/portefeuille.png" alt="" width="24" height="24" class="quick-action-img" />
               </div>
               <span>Add<br>Money</span>
             </button>
             <button type="button" class="quick-action" id="btn-history">
               <div class="quick-action-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <img src="/icons/history.png" alt="" width="24" height="24" class="quick-action-img" />
               </div>
               <span>History</span>
             </button>
             <button type="button" class="quick-action" id="btn-more">
               <div class="quick-action-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <img src="/icons/plus.png" alt="" width="24" height="24" class="quick-action-img" />
               </div>
               <span>More</span>
             </button>
