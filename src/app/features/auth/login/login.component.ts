@@ -1,38 +1,42 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { RouterLink, Router } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [RouterLink, NgOptimizedImage],
+  imports: [RouterLink, NgOptimizedImage, ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="auth-layout hex-bg">
-      <!-- Left: Form -->
       <div class="auth-form-side">
         <div class="auth-form-card card">
           <h1 class="auth-title">CONNECTEZ VOUS</h1>
 
-          <form class="auth-form" id="login-form" novalidate>
+          @if (errorMsg()) {
+            <div class="alert alert--error" role="alert">{{ errorMsg() }}</div>
+          }
+
+          <form [formGroup]="form" class="auth-form" (ngSubmit)="onSubmit()" novalidate>
             <!-- Email -->
             <div class="form-group">
-              <label for="log-email" class="form-label">
+              <label for="login-email" class="form-label">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 7 10-7"/></svg>
                 Adresse Email
               </label>
-              <input id="log-email" name="email" type="email" class="form-input"
-                     placeholder="" autocomplete="email" />
+              <input formControlName="email" id="login-email" type="email" class="form-input" autocomplete="email" />
             </div>
 
             <!-- Password -->
             <div class="form-group">
-              <label for="log-password" class="form-label">
+              <label for="login-password" class="form-label">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 Password
               </label>
               <div class="form-input-wrapper">
-                <input id="log-password" name="password" [type]="showPw() ? 'text' : 'password'"
-                       class="form-input" placeholder="" autocomplete="current-password" />
+                <input formControlName="password" id="login-password" [type]="showPw() ? 'text' : 'password'"
+                       class="form-input" autocomplete="current-password" />
                 <button type="button" class="toggle-pw" (click)="showPw.set(!showPw())"
                         [attr.aria-label]="showPw() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
                   @if (showPw()) {
@@ -47,13 +51,14 @@ import { NgOptimizedImage } from '@angular/common';
             <!-- Actions -->
             <div class="auth-actions">
               <a routerLink="/register" class="btn-ghost">S'inscription</a>
-              <button type="submit" class="btn-primary">Valider</button>
+              <button type="submit" class="btn-primary" [disabled]="form.invalid || loading()">
+                {{ loading() ? 'Chargement...' : 'Valider' }}
+              </button>
             </div>
           </form>
         </div>
       </div>
 
-      <!-- Right: Hero -->
       <div class="auth-hero-side">
         <img ngSrc="img/bank-3d-vector.png" alt="Paiement facile et accessible"
              class="auth-hero-img" width="480" height="400" priority />
@@ -132,5 +137,35 @@ import { NgOptimizedImage } from '@angular/common';
   `]
 })
 export class LoginComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
   readonly showPw = signal(false);
+  readonly loading = signal(false);
+  readonly errorMsg = signal('');
+
+  readonly form = this.fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required],
+  });
+
+  onSubmit() {
+    if (this.form.invalid) return;
+
+    this.loading.set(true);
+    this.errorMsg.set('');
+
+    this.authService.login(this.form.getRawValue()).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.errorMsg.set(err.error?.message || 'Identifiants incorrects.');
+      }
+    });
+  }
 }
+
