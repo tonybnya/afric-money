@@ -12,9 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
 
         <!-- Logo -->
         <a routerLink="/" class="navbar-logo" aria-label="Accueil @fric Money">
-          <div class="navbar-logo-box">
-            <span class="navbar-logo-text">@fric</span>
-          </div>
+          <img src="/img/logo.png" alt="@fric Money" width="90" height="44" class="navbar-logo-img" />
         </a>
 
         <!-- Nav links -->
@@ -65,21 +63,13 @@ import { AuthService } from '../../../core/services/auth.service';
     .navbar-logo {
       text-decoration: none;
       flex-shrink: 0;
-    }
-    .navbar-logo-box {
-      width: 80px;
-      height: 44px;
-      background: var(--color-primary);
-      border-radius: 4px;
       display: flex;
       align-items: center;
-      justify-content: center;
     }
-    .navbar-logo-text {
-      color: #fff;
-      font-weight: 800;
-      font-size: 1rem;
-      letter-spacing: -0.02em;
+    .navbar-logo-img {
+      height: 44px;
+      width: auto;
+      display: block;
     }
     .navbar-links {
       display: flex;
