@@ -1,12 +1,21 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { NavbarComponent } from './shared/components/navbar/navbar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  imports: [RouterOutlet, NavbarComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <div class="page-wrapper">
+      <app-navbar />
+      <main>
+        <router-outlet />
+      </main>
+    </div>
+  `,
+  styles: [`
+    main { flex: 1; }
+  `]
 })
-export class App {
-  protected readonly title = signal('afric-money');
-}
+export class App {}
