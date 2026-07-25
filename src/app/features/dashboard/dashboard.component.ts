@@ -25,6 +25,7 @@ interface Transaction {
 function formatDate(iso: string): string {
   if (!iso) return '';
   const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
   const day = d.getDate().toString().padStart(2, '0');
   const month = (d.getMonth() + 1).toString().padStart(2, '0');
   const year = d.getFullYear();
