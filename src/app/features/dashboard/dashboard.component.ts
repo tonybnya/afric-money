@@ -45,6 +45,10 @@ function formatDate(iso: string): string {
           Welcome Dear <span class="accent">{{ userName() }}!</span>
         </h1>
 
+        @if (loadError()) {
+          <div class="alert alert--error" role="alert">{{ loadError() }}</div>
+        }
+
         <!-- Top row: cards + quick actions -->
         <div class="top-row">
 
@@ -339,6 +343,8 @@ export class DashboardComponent implements OnInit {
   
   readonly transactions = signal<Transaction[]>([]);
 
+  readonly loading = signal(true);
+  readonly loadError = signal('');
   readonly isSubmitting = signal(false);
   readonly addError = signal('');
   readonly sendError = signal('');
@@ -351,8 +357,11 @@ export class DashboardComponent implements OnInit {
   }
 
   fetchData() {
+    this.loading.set(true);
+    this.loadError.set('');
     this.accountService.getUserDetails().subscribe({
       next: (res: any) => {
+        this.loading.set(false);
         const user = res?.user || res?.data || res;
         const account = user?.account || res?.account;
         const cur = user?.currency || account?.currency || 'XAF';
@@ -378,7 +387,10 @@ export class DashboardComponent implements OnInit {
           }
         }
       },
-      error: (err) => console.error('Failed to load user details', err)
+      error: (err) => {
+        this.loading.set(false);
+        this.loadError.set(err.error?.message || err.message || 'Échec du chargement des données');
+      }
     });
   }
 
