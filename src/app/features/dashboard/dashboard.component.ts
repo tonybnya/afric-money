@@ -2,26 +2,34 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AccountService } from '../../core/services/account.service';
 
-interface Transaction {
-  date: string;
-  service: string;
+interface JournalEntry {
+  id: number;
+  accountId: number;
   direction: 'CREDIT' | 'DEBIT';
-  fees: number;
-  name: string;
-  amountReceived: number;
+  amount: number;
   balanceBefore: number;
   balanceAfter: number;
-  status: 'SUCCESS' | 'PENDING' | 'FAILED';
+  createdAt: string;
+}
+
+interface Transaction {
+  id: number;
+  date: string;
+  direction: 'CREDIT' | 'DEBIT';
+  amount: number;
+  balanceBefore: number;
+  balanceAfter: number;
   currency: string;
 }
 
-const MOCK_TX: Transaction[] = [
-  { date: '27 / 02 / 2025', service: 'Dépôt Orange - CM', direction: 'CREDIT', fees: 0, name: 'NGALE Brenda', amountReceived: 500, balanceBefore: 526529.42, balanceAfter: 526029.42, status: 'PENDING', currency: 'USD' },
-  { date: '27 / 11 / 2024', service: 'Dépôt Orange - CM', direction: 'DEBIT', fees: 0, name: 'DENDA Erick', amountReceived: 500, balanceBefore: 527029.42, balanceAfter: 526529.42, status: 'SUCCESS', currency: 'USD' },
-  { date: '22 / 10 / 2025', service: 'Dépôt Orange - CM', direction: 'CREDIT', fees: 0, name: 'FOTSO Ramsses', amountReceived: 500, balanceBefore: 527529.42, balanceAfter: 526529.42, status: 'PENDING', currency: 'USD' },
-  { date: '15 / 10 / 2024', service: 'Envoi Agence - CM', direction: 'DEBIT', fees: 0, name: 'ENDALE Stivy', amountReceived: 500, balanceBefore: 528029.42, balanceAfter: 527529.42, status: 'FAILED', currency: 'USD' },
-  { date: '23 / 09 / 2024', service: 'Envoi', direction: 'CREDIT', fees: 0, name: 'RENDEH Rebecca', amountReceived: 500, balanceBefore: 528029.42, balanceAfter: 528029.42, status: 'PENDING', currency: 'USD' },
-];
+function formatDate(iso: string): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day} / ${month} / ${year}`;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -123,32 +131,24 @@ const MOCK_TX: Transaction[] = [
               <thead>
                 <tr>
                   <th scope="col">Date</th>
-                  <th scope="col">Services</th>
-                  <th scope="col">In (+) / Out (-)</th>
-                  <th scope="col">Fees</th>
-                  <th scope="col">Nom</th>
-                  <th scope="col">Amount received</th>
-                  <th scope="col">Balance Before</th>
-                  <th scope="col">Balance After</th>
-                  <th scope="col">Statut</th>
+                  <th scope="col">Direction</th>
+                  <th scope="col">Montant</th>
+                  <th scope="col">Solde avant</th>
+                  <th scope="col">Solde après</th>
                 </tr>
               </thead>
               <tbody>
-                @for (tx of transactions(); track tx.date + tx.name) {
+                @for (tx of transactions(); track tx.id) {
                   <tr>
                     <td>{{ tx.date }}</td>
-                    <td>{{ tx.service }}</td>
                     <td [class]="tx.direction === 'CREDIT' ? 'credit' : 'debit'">
-                      {{ tx.direction === 'CREDIT' ? '+' : '-' }}{{ tx.amountReceived.toFixed(2) }} {{ tx.currency }}
+                      {{ tx.direction === 'CREDIT' ? 'Dépôt' : 'Retrait' }}
                     </td>
-                    <td>{{ tx.fees.toFixed(2) }} {{ tx.currency }}</td>
-                    <td><strong>{{ tx.name }}</strong></td>
-                    <td>{{ tx.amountReceived.toFixed(2) }} {{ tx.currency }}</td>
+                    <td [class]="tx.direction === 'CREDIT' ? 'credit' : 'debit'">
+                      {{ tx.direction === 'CREDIT' ? '+' : '-' }}{{ tx.amount.toLocaleString('fr-FR', {minimumFractionDigits: 2}) }} {{ tx.currency }}
+                    </td>
                     <td>{{ tx.balanceBefore.toLocaleString('fr-FR', {minimumFractionDigits: 2}) }} {{ tx.currency }}</td>
                     <td>{{ tx.balanceAfter.toLocaleString('fr-FR', {minimumFractionDigits: 2}) }} {{ tx.currency }}</td>
-                    <td>
-                      <span [class]="statusClass(tx.status)">{{ tx.status }}</span>
-                    </td>
                   </tr>
                 }
               </tbody>
@@ -336,9 +336,8 @@ export class DashboardComponent implements OnInit {
   readonly currency = signal('XAF');
   readonly accountNumber = signal('+237 000 00 00 00');
   
-  readonly transactions = signal<Transaction[]>(MOCK_TX);
+  readonly transactions = signal<Transaction[]>([]);
 
-  // Modals state
   readonly isSubmitting = signal(false);
   readonly addError = signal('');
   readonly sendError = signal('');
@@ -353,20 +352,28 @@ export class DashboardComponent implements OnInit {
   fetchData() {
     this.accountService.getUserDetails().subscribe({
       next: (res: any) => {
-        // Handle varying response envelopes safely
         const user = res?.user || res?.data || res;
         const account = user?.account || res?.account;
+        const cur = user?.currency || account?.currency || 'XAF';
 
         if (user?.name) this.userName.set(user.name);
-        if (user?.currency) this.currency.set(user.currency);
-        
+        if (cur) this.currency.set(cur);
+
         if (account) {
           this.balance.set(account.balance ?? 0);
           this.accountNumber.set(account.accountNumber ?? this.accountNumber());
-          // If the API returns a journal/transactions list, we'd assign it here.
-          // Otherwise, keeping our MOCK_TX for the design completeness.
+
           if (account.accounting_journal && Array.isArray(account.accounting_journal)) {
-            // this.transactions.set(account.accounting_journal);
+            const entries: Transaction[] = account.accounting_journal.map((j: JournalEntry) => ({
+              id: j.id,
+              date: formatDate(j.createdAt),
+              direction: j.direction,
+              amount: j.amount,
+              balanceBefore: j.balanceBefore,
+              balanceAfter: j.balanceAfter,
+              currency: cur,
+            }));
+            this.transactions.set(entries);
           }
         }
       },
@@ -420,15 +427,6 @@ export class DashboardComponent implements OnInit {
         this.sendError.set(err.error?.message || 'Erreur lors de l’envoi');
       }
     });
-  }
-
-  statusClass(status: string): string {
-    const map: Record<string, string> = {
-      SUCCESS: 'badge badge--success',
-      FAILED: 'badge badge--danger',
-      PENDING: 'badge badge--pending',
-    };
-    return map[status] ?? 'badge';
   }
 
   closeOnBackdrop(event: MouseEvent, modal: 'add' | 'send'): void {
