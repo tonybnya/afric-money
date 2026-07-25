@@ -12,7 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
     <div class="auth-layout hex-bg">
       <div class="auth-form-side">
         <div class="auth-form-card card">
-          <h1 class="auth-title">CONNECTEZ VOUS</h1>
+          <h1 class="auth-title">CONNECTEZ-VOUS</h1>
 
           @if (errorMsg()) {
             <div class="alert alert--error" role="alert">{{ errorMsg() }}</div>
@@ -32,7 +32,7 @@ import { AuthService } from '../../../core/services/auth.service';
             <div class="form-group">
               <label for="login-password" class="form-label">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                Password
+                Mot de passe
               </label>
               <div class="form-input-wrapper">
                 <input formControlName="password" id="login-password" [type]="showPw() ? 'text' : 'password'"
@@ -50,7 +50,7 @@ import { AuthService } from '../../../core/services/auth.service';
 
             <!-- Actions -->
             <div class="auth-actions">
-              <a routerLink="/register" class="btn-ghost">S'inscription</a>
+              <a routerLink="/register" class="btn-ghost">S'Inscrire</a>
               <button type="submit" class="btn-primary" [disabled]="form.invalid || loading()">
                 {{ loading() ? 'Chargement...' : 'Valider' }}
               </button>
@@ -62,7 +62,7 @@ import { AuthService } from '../../../core/services/auth.service';
       <div class="auth-hero-side">
         <img ngSrc="/img/bank-3d-vector.png" alt="Paiement facile et accessible"
              class="auth-hero-img" width="480" height="400" priority />
-        <h2 class="auth-hero-title">le paiement facile et accessible</h2>
+        <h2 class="auth-hero-title">Le paiement facile et accessible</h2>
         <p class="auth-hero-desc">
           Grâce à ces outils, il est possible de payer en ligne, via mobile ou en point de vente,
           sans avoir besoin de manipuler de l'argent liquide. Les solutions de paiement offrent
@@ -104,7 +104,7 @@ import { AuthService } from '../../../core/services/auth.service';
     .auth-actions {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: center;
       gap: 1.25rem;
       margin-top: 0.5rem;
     }

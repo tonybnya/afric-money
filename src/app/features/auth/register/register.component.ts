@@ -12,7 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
     <div class="auth-layout hex-bg">
       <div class="auth-form-side">
         <div class="auth-form-card card">
-          <h1 class="auth-title">INSCRIVEZ VOUS</h1>
+          <h1 class="auth-title">INSCRIVEZ-VOUS</h1>
 
           @if (errorMsg()) {
             <div class="alert alert--error" role="alert">{{ errorMsg() }}</div>
@@ -23,7 +23,7 @@ import { AuthService } from '../../../core/services/auth.service';
             <div class="form-group">
               <label for="reg-name" class="form-label">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                Name :
+                Nom
               </label>
               <input formControlName="name" id="reg-name" type="text" class="form-input" autocomplete="name" />
             </div>
@@ -41,7 +41,7 @@ import { AuthService } from '../../../core/services/auth.service';
             <div class="form-group">
               <label for="reg-password" class="form-label">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                Password
+                Mot de passe
               </label>
               <div class="form-input-wrapper">
                 <input formControlName="password" id="reg-password" [type]="showPw() ? 'text' : 'password'"
@@ -59,13 +59,13 @@ import { AuthService } from '../../../core/services/auth.service';
 
             <!-- Currency -->
             <div class="form-group">
-              <label for="reg-currency" class="sr-only">Currency</label>
+              <label for="reg-currency" class="sr-only">Monnaie</label>
               <select formControlName="currency" id="reg-currency" class="form-select">
-                <option value="" disabled>Currency</option>
-                <option value="XAF">XAF — Franc CFA BEAC</option>
-                <option value="USD">USD — Dollar américain</option>
-                <option value="EUR">EUR — Euro</option>
-                <option value="XOF">XOF — Franc CFA BCEAO</option>
+                <option value="" disabled>Monnaie</option>
+                <option value="XAF">XAF - Franc CFA BEAC</option>
+                <option value="USD">USD - Dollar américain</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="XOF">XOF - Franc CFA BCEAO</option>
               </select>
             </div>
 
@@ -83,7 +83,7 @@ import { AuthService } from '../../../core/services/auth.service';
       <div class="auth-hero-side">
         <img ngSrc="/img/bank-3d-vector.png" alt="Paiement facile et accessible"
              class="auth-hero-img" width="480" height="400" priority />
-        <h2 class="auth-hero-title">le paiement facile et accessible</h2>
+        <h2 class="auth-hero-title">Le paiement facile et accessible</h2>
         <p class="auth-hero-desc">
           Grâce à ces outils, il est possible de payer en ligne, via mobile ou en point de vente,
           sans avoir besoin de manipuler de l'argent liquide. Les solutions de paiement offrent
@@ -115,7 +115,6 @@ import { AuthService } from '../../../core/services/auth.service';
       font-weight: 800;
       text-align: center;
       margin-bottom: 2rem;
-      text-decoration: underline;
       letter-spacing: 0.02em;
     }
     .auth-form {
@@ -126,7 +125,7 @@ import { AuthService } from '../../../core/services/auth.service';
     .auth-actions {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: center;
       gap: 1.25rem;
       margin-top: 0.5rem;
     }
