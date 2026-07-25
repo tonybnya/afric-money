@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal, PLATFORM_ID } from '@angular/core
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface User {
   id: number;
@@ -27,7 +28,7 @@ export interface AuthResponse {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private readonly API_URL = 'https://recruitment.africremit.ca/api';
+  private readonly API_URL = environment.apiUrl;
 
   readonly currentUser = signal<User | null>(null);
   readonly token = signal<string | null>(null);
