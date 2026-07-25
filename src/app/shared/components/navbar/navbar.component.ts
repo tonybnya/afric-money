@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -33,8 +34,15 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
             <span>🇫🇷</span> FR
             <svg width="12" height="8" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
           </button>
-          <a routerLink="/login" class="btn-outline">Se Connecter</a>
-          <a routerLink="/register" class="btn-primary">S'Inscrire</a>
+
+          @if (authService.isAuthenticated()) {
+            <span class="nav-welcome">Bienvenue, <strong>{{ authService.currentUser()?.name || 'Client' }}</strong></span>
+            <a routerLink="/dashboard" class="btn-primary">Mon Compte</a>
+            <button type="button" class="btn-outline" (click)="logout()">Déconnexion</button>
+          } @else {
+            <a routerLink="/login" class="btn-outline">Se Connecter</a>
+            <a routerLink="/register" class="btn-primary">S'Inscrire</a>
+          }
         </div>
 
       </div>
@@ -120,6 +128,31 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       transition: background 0.15s;
     }
     .lang-btn:hover { background: var(--color-primary-light); }
+    .nav-welcome {
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+      margin-right: 0.5rem;
+    }
+    .nav-welcome strong {
+      color: var(--color-text);
+    }
   `]
 })
-export class NavbarComponent {}
+export class NavbarComponent {
+  readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  logout() {
+    this.authService.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        // Fallback to clear session locally if API fails
+        this.authService.clearSession();
+        this.router.navigate(['/login']);
+      }
+    });
+  }
+}
+
