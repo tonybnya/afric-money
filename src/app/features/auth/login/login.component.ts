@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [RouterLink],
+  imports: [RouterLink, NgOptimizedImage],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="auth-layout hex-bg">
@@ -54,8 +55,8 @@ import { RouterLink } from '@angular/router';
 
       <!-- Right: Hero -->
       <div class="auth-hero-side">
-        <img src="assets/hero-banking.png" alt="Paiement facile et accessible"
-             class="auth-hero-img" width="480" height="400" />
+        <img ngSrc="/img/bank-3d-vector.png" alt="Paiement facile et accessible"
+             class="auth-hero-img" width="480" height="400" priority />
         <h2 class="auth-hero-title">le paiement facile et accessible</h2>
         <p class="auth-hero-desc">
           Grâce à ces outils, il est possible de payer en ligne, via mobile ou en point de vente,
