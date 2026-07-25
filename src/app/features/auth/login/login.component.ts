@@ -60,7 +60,7 @@ import { AuthService } from '../../../core/services/auth.service';
       </div>
 
       <div class="auth-hero-side">
-        <img ngSrc="img/bank-3d-vector.png" alt="Paiement facile et accessible"
+        <img ngSrc="/img/bank-3d-vector.png" alt="Paiement facile et accessible"
              class="auth-hero-img" width="480" height="400" priority />
         <h2 class="auth-hero-title">le paiement facile et accessible</h2>
         <p class="auth-hero-desc">
@@ -120,7 +120,6 @@ import { AuthService } from '../../../core/services/auth.service';
     }
     .auth-hero-img {
       max-width: 100%;
-      height: auto;
       margin-bottom: 1.5rem;
     }
     .auth-hero-title {
