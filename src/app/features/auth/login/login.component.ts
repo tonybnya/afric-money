@@ -26,6 +26,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 Adresse Email
               </label>
               <input formControlName="email" id="login-email" type="email" class="form-input" autocomplete="email" />
+              @if (fieldError('email')) { <span class="field-error">{{ fieldError('email') }}</span> }
             </div>
 
             <!-- Password -->
@@ -46,6 +47,7 @@ import { AuthService } from '../../../core/services/auth.service';
                   }
                 </button>
               </div>
+              @if (fieldError('password')) { <span class="field-error">{{ fieldError('password') }}</span> }
             </div>
 
             <!-- Actions -->
@@ -133,6 +135,12 @@ import { AuthService } from '../../../core/services/auth.service';
       line-height: 1.7;
       max-width: 480px;
     }
+    .field-error {
+      display: block;
+      font-size: 0.78rem;
+      color: #e74c3c;
+      margin-top: 0.25rem;
+    }
   `]
 })
 export class LoginComponent {
@@ -149,8 +157,19 @@ export class LoginComponent {
     password: ['', Validators.required],
   });
 
+  fieldError(field: string): string {
+    const ctrl = this.form.get(field);
+    if (!ctrl || !ctrl.errors || !ctrl.touched) return '';
+    if (ctrl.errors['required']) return 'Ce champ est requis.';
+    if (ctrl.errors['email']) return 'Adresse email invalide.';
+    return '';
+  }
+
   onSubmit() {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
     this.loading.set(true);
     this.errorMsg.set('');

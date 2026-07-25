@@ -26,6 +26,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 Nom
               </label>
               <input formControlName="name" id="reg-name" type="text" class="form-input" autocomplete="name" />
+              @if (fieldError('name')) { <span class="field-error">{{ fieldError('name') }}</span> }
             </div>
 
             <!-- Email -->
@@ -35,6 +36,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 Adresse Email
               </label>
               <input formControlName="email" id="reg-email" type="email" class="form-input" autocomplete="email" />
+              @if (fieldError('email')) { <span class="field-error">{{ fieldError('email') }}</span> }
             </div>
 
             <!-- Password -->
@@ -55,6 +57,7 @@ import { AuthService } from '../../../core/services/auth.service';
                   }
                 </button>
               </div>
+              @if (fieldError('password')) { <span class="field-error">{{ fieldError('password') }}</span> }
             </div>
 
             <!-- Currency -->
@@ -67,6 +70,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 <option value="EUR">EUR - Euro</option>
                 <option value="XOF">XOF - Franc CFA BCEAO</option>
               </select>
+              @if (fieldError('currency')) { <span class="field-error">{{ fieldError('currency') }}</span> }
             </div>
 
             <!-- Actions -->
@@ -165,6 +169,12 @@ import { AuthService } from '../../../core/services/auth.service';
       clip: rect(0,0,0,0);
       border: 0;
     }
+    .field-error {
+      display: block;
+      font-size: 0.78rem;
+      color: #e74c3c;
+      margin-top: 0.25rem;
+    }
   `]
 })
 export class RegisterComponent {
@@ -183,8 +193,20 @@ export class RegisterComponent {
     currency: ['', Validators.required],
   });
 
+  fieldError(field: string): string {
+    const ctrl = this.form.get(field);
+    if (!ctrl || !ctrl.errors || !ctrl.touched) return '';
+    if (ctrl.errors['required']) return 'Ce champ est requis.';
+    if (ctrl.errors['email']) return 'Adresse email invalide.';
+    if (ctrl.errors['minlength']) return `Minimum ${ctrl.errors['minlength'].requiredLength} caractères.`;
+    return '';
+  }
+
   onSubmit() {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
     this.loading.set(true);
     this.errorMsg.set('');
