@@ -49,117 +49,132 @@ function formatDate(iso: string): string {
           <div class="alert alert--error" role="alert">{{ loadError() }}</div>
         }
 
-        <!-- Top row: cards + quick actions -->
-        <div class="top-row">
-
-          <!-- Active account card -->
-          <div class="account-card account-card--active" role="region" aria-label="Compte actif">
-            <div class="card-header">
-              <span class="card-label">COMPTE &#64;FRIC MONEY</span>
-              <span class="commission">COMMISSION <br><strong>0.00 <svg width="10" height="10" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></strong></span>
+        @if (loading()) {
+          <div class="loading-skeleton" aria-label="Chargement en cours" role="status">
+            <div class="skeleton-row skeleton-cards" aria-hidden="true">
+              <div class="skeleton skeleton-card"></div>
+              <div class="skeleton skeleton-card"></div>
+              <div class="skeleton skeleton-actions"></div>
             </div>
-            <div class="card-balance">
-              <button type="button" class="eye-btn" aria-label="Afficher/masquer le solde" (click)="balanceVisible.set(!balanceVisible())">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                  @if (balanceVisible()) {
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                  } @else {
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
-                  }
-                </svg>
+            <div class="skeleton skeleton-table-header" aria-hidden="true"></div>
+            <div class="skeleton skeleton-table-row" aria-hidden="true"></div>
+            <div class="skeleton skeleton-table-row" aria-hidden="true"></div>
+            <div class="skeleton skeleton-table-row" aria-hidden="true"></div>
+            <span class="sr-only">Chargement des données...</span>
+          </div>
+        } @else {
+          <!-- Top row: cards + quick actions -->
+          <div class="top-row">
+
+            <!-- Active account card -->
+            <div class="account-card account-card--active" role="region" aria-label="Compte actif">
+              <div class="card-header">
+                <span class="card-label">COMPTE &#64;FRIC MONEY</span>
+                <span class="commission">COMMISSION <br><strong>0.00 <svg width="10" height="10" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></strong></span>
+              </div>
+              <div class="card-balance">
+                <button type="button" class="eye-btn" aria-label="Afficher/masquer le solde" (click)="balanceVisible.set(!balanceVisible())">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    @if (balanceVisible()) {
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                    } @else {
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+                    }
+                  </svg>
+                </button>
+                <span class="flag">🇨🇲</span>
+                <span class="balance-amount">
+                  @if (balanceVisible()) { {{ balance().toLocaleString('fr-FR', {minimumFractionDigits: 2}) }} } @else { *** }
+                </span>
+                <span class="balance-currency">{{ currency() }}</span>
+              </div>
+              <p class="card-account-number">{{ accountNumber() }}</p>
+            </div>
+
+            <!-- Ghost account card -->
+            <div class="account-card account-card--ghost" role="region" aria-label="Compte secondaire">
+              <div class="card-header">
+                <span class="card-label ghost-label">COMPTE &#64;FRIC MONEY</span>
+                <span class="commission ghost-commission">COMMISSION <br><strong>0.00 <svg width="10" height="10" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></strong></span>
+              </div>
+              <div class="card-balance ghost-balance">
+                <button type="button" class="eye-btn ghost-eye" aria-label="Afficher/masquer le solde secondaire">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <span class="flag">🇨🇲</span>
+                <span class="balance-amount ghost-amount">5 000 000</span>
+                <span class="balance-currency ghost-currency">XAF</span>
+              </div>
+              <p class="card-account-number ghost-number">+237 690 20 20 20</p>
+            </div>
+
+            <!-- Quick actions -->
+            <div class="quick-actions" role="group" aria-label="Actions rapides">
+              <button type="button" class="quick-action" id="btn-send" (click)="openSend()">
+                <div class="quick-action-icon">
+                  <img src="/icons/Send-money.png" alt="" width="24" height="24" class="quick-action-img" />
+                </div>
+                <span>Send<br>Money</span>
               </button>
-              <span class="flag">🇨🇲</span>
-              <span class="balance-amount">
-                @if (balanceVisible()) { {{ balance().toLocaleString('fr-FR', {minimumFractionDigits: 2}) }} } @else { *** }
-              </span>
-              <span class="balance-currency">{{ currency() }}</span>
-            </div>
-            <p class="card-account-number">{{ accountNumber() }}</p>
-          </div>
-
-          <!-- Ghost account card -->
-          <div class="account-card account-card--ghost" role="region" aria-label="Compte secondaire">
-            <div class="card-header">
-              <span class="card-label ghost-label">COMPTE &#64;FRIC MONEY</span>
-              <span class="commission ghost-commission">COMMISSION <br><strong>0.00 <svg width="10" height="10" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></strong></span>
-            </div>
-            <div class="card-balance ghost-balance">
-              <button type="button" class="eye-btn ghost-eye" aria-label="Afficher/masquer le solde secondaire">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <button type="button" class="quick-action" id="btn-add" (click)="openAdd()">
+                <div class="quick-action-icon">
+                  <img src="/icons/portefeuille.png" alt="" width="24" height="24" class="quick-action-img" />
+                </div>
+                <span>Add<br>Money</span>
               </button>
-              <span class="flag">🇨🇲</span>
-              <span class="balance-amount ghost-amount">5 000 000</span>
-              <span class="balance-currency ghost-currency">XAF</span>
+              <button type="button" class="quick-action" id="btn-history">
+                <div class="quick-action-icon">
+                  <img src="/icons/history.png" alt="" width="24" height="24" class="quick-action-img" />
+                </div>
+                <span>History</span>
+              </button>
+              <button type="button" class="quick-action" id="btn-more">
+                <div class="quick-action-icon">
+                  <img src="/icons/plus.png" alt="" width="24" height="24" class="quick-action-img" />
+                </div>
+                <span>More</span>
+              </button>
             </div>
-            <p class="card-account-number ghost-number">+237 690 20 20 20</p>
-          </div>
 
-          <!-- Quick actions -->
-          <div class="quick-actions" role="group" aria-label="Actions rapides">
-            <button type="button" class="quick-action" id="btn-send" (click)="openSend()">
-              <div class="quick-action-icon">
-                <img src="/icons/Send-money.png" alt="" width="24" height="24" class="quick-action-img" />
-              </div>
-              <span>Send<br>Money</span>
-            </button>
-            <button type="button" class="quick-action" id="btn-add" (click)="openAdd()">
-              <div class="quick-action-icon">
-                <img src="/icons/portefeuille.png" alt="" width="24" height="24" class="quick-action-img" />
-              </div>
-              <span>Add<br>Money</span>
-            </button>
-            <button type="button" class="quick-action" id="btn-history">
-              <div class="quick-action-icon">
-                <img src="/icons/history.png" alt="" width="24" height="24" class="quick-action-img" />
-              </div>
-              <span>History</span>
-            </button>
-            <button type="button" class="quick-action" id="btn-more">
-              <div class="quick-action-icon">
-                <img src="/icons/plus.png" alt="" width="24" height="24" class="quick-action-img" />
-              </div>
-              <span>More</span>
-            </button>
-          </div>
+          </div><!-- /top-row -->
 
-        </div><!-- /top-row -->
+          <!-- Transactions table -->
+          <section class="transactions-section" aria-labelledby="tx-heading">
+            <div class="transactions-header">
+              <h2 id="tx-heading" class="tx-title">5 DERNIÈRES TRANSACTIONS</h2>
+              <a href="#" class="tx-voir">VOIR +</a>
+            </div>
 
-        <!-- Transactions table -->
-        <section class="transactions-section" aria-labelledby="tx-heading">
-          <div class="transactions-header">
-            <h2 id="tx-heading" class="tx-title">5 DERNIÈRES TRANSACTIONS</h2>
-            <a href="#" class="tx-voir">VOIR +</a>
-          </div>
-
-          <div class="table-wrapper">
-            <table class="data-table" aria-label="Dernières transactions">
-              <thead>
-                <tr>
-                  <th scope="col">Date</th>
-                  <th scope="col">Direction</th>
-                  <th scope="col">Montant</th>
-                  <th scope="col">Solde avant</th>
-                  <th scope="col">Solde après</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (tx of transactions(); track tx.id) {
+            <div class="table-wrapper">
+              <table class="data-table" aria-label="Dernières transactions">
+                <thead>
                   <tr>
-                    <td>{{ tx.date }}</td>
-                    <td [class]="tx.direction === 'CREDIT' ? 'credit' : 'debit'">
-                      {{ tx.direction === 'CREDIT' ? 'Dépôt' : 'Retrait' }}
-                    </td>
-                    <td [class]="tx.direction === 'CREDIT' ? 'credit' : 'debit'">
-                      {{ tx.direction === 'CREDIT' ? '+' : '-' }}{{ tx.amount.toLocaleString('fr-FR', {minimumFractionDigits: 2}) }} {{ tx.currency }}
-                    </td>
-                    <td>{{ tx.balanceBefore.toLocaleString('fr-FR', {minimumFractionDigits: 2}) }} {{ tx.currency }}</td>
-                    <td>{{ tx.balanceAfter.toLocaleString('fr-FR', {minimumFractionDigits: 2}) }} {{ tx.currency }}</td>
+                    <th scope="col">Date</th>
+                    <th scope="col">Direction</th>
+                    <th scope="col">Montant</th>
+                    <th scope="col">Solde avant</th>
+                    <th scope="col">Solde après</th>
                   </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </section>
+                </thead>
+                <tbody>
+                  @for (tx of transactions(); track tx.id) {
+                    <tr>
+                      <td>{{ tx.date }}</td>
+                      <td [class]="tx.direction === 'CREDIT' ? 'credit' : 'debit'">
+                        {{ tx.direction === 'CREDIT' ? 'Dépôt' : 'Retrait' }}
+                      </td>
+                      <td [class]="tx.direction === 'CREDIT' ? 'credit' : 'debit'">
+                        {{ tx.direction === 'CREDIT' ? '+' : '-' }}{{ tx.amount.toLocaleString('fr-FR', {minimumFractionDigits: 2}) }} {{ tx.currency }}
+                      </td>
+                      <td>{{ tx.balanceBefore.toLocaleString('fr-FR', {minimumFractionDigits: 2}) }} {{ tx.currency }}</td>
+                      <td>{{ tx.balanceAfter.toLocaleString('fr-FR', {minimumFractionDigits: 2}) }} {{ tx.currency }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        }
 
       </div><!-- /container -->
 
@@ -326,6 +341,55 @@ function formatDate(iso: string): string {
       justify-content: flex-end;
       gap: 1.25rem;
       margin-top: 1.75rem;
+    }
+
+    /* Loading skeleton */
+    .loading-skeleton {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .skeleton-row {
+      display: flex;
+      gap: 1.25rem;
+    }
+    .skeleton-cards { flex-wrap: wrap; }
+    .skeleton {
+      background: var(--color-border, #e0e0e0);
+      border-radius: var(--radius-card, 12px);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .skeleton-card {
+      height: 140px;
+      flex: 1 1 260px;
+    }
+    .skeleton-actions {
+      height: 80px;
+      width: 320px;
+      align-self: center;
+    }
+    .skeleton-table-header {
+      height: 24px;
+      width: 300px;
+    }
+    .skeleton-table-row {
+      height: 40px;
+      width: 100%;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.7; }
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
     }
   `]
 })
