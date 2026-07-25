@@ -55,7 +55,7 @@ import { NgOptimizedImage } from '@angular/common';
 
       <!-- Right: Hero -->
       <div class="auth-hero-side">
-        <img ngSrc="/img/bank-3d-vector.png" alt="Paiement facile et accessible"
+        <img ngSrc="img/bank-3d-vector.png" alt="Paiement facile et accessible"
              class="auth-hero-img" width="480" height="400" priority />
         <h2 class="auth-hero-title">le paiement facile et accessible</h2>
         <p class="auth-hero-desc">
