@@ -1,27 +1,31 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { RouterLink, Router } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
-  imports: [RouterLink, NgOptimizedImage],
+  imports: [RouterLink, NgOptimizedImage, ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="auth-layout hex-bg">
-      <!-- Left: Form -->
       <div class="auth-form-side">
         <div class="auth-form-card card">
           <h1 class="auth-title">INSCRIVEZ VOUS</h1>
 
-          <form class="auth-form" id="register-form" novalidate>
+          @if (errorMsg()) {
+            <div class="alert alert--error" role="alert">{{ errorMsg() }}</div>
+          }
+
+          <form [formGroup]="form" class="auth-form" (ngSubmit)="onSubmit()" novalidate>
             <!-- Name -->
             <div class="form-group">
               <label for="reg-name" class="form-label">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
                 Name :
               </label>
-              <input id="reg-name" name="name" type="text" class="form-input"
-                     placeholder="" autocomplete="name" />
+              <input formControlName="name" id="reg-name" type="text" class="form-input" autocomplete="name" />
             </div>
 
             <!-- Email -->
@@ -30,8 +34,7 @@ import { NgOptimizedImage } from '@angular/common';
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 7 10-7"/></svg>
                 Adresse Email
               </label>
-              <input id="reg-email" name="email" type="email" class="form-input"
-                     placeholder="" autocomplete="email" />
+              <input formControlName="email" id="reg-email" type="email" class="form-input" autocomplete="email" />
             </div>
 
             <!-- Password -->
@@ -41,8 +44,8 @@ import { NgOptimizedImage } from '@angular/common';
                 Password
               </label>
               <div class="form-input-wrapper">
-                <input id="reg-password" name="password" [type]="showPw() ? 'text' : 'password'"
-                       class="form-input" placeholder="" autocomplete="new-password" />
+                <input formControlName="password" id="reg-password" [type]="showPw() ? 'text' : 'password'"
+                       class="form-input" autocomplete="new-password" />
                 <button type="button" class="toggle-pw" (click)="showPw.set(!showPw())"
                         [attr.aria-label]="showPw() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
                   @if (showPw()) {
@@ -57,8 +60,8 @@ import { NgOptimizedImage } from '@angular/common';
             <!-- Currency -->
             <div class="form-group">
               <label for="reg-currency" class="sr-only">Currency</label>
-              <select id="reg-currency" name="currency" class="form-select">
-                <option value="" disabled selected>Currency</option>
+              <select formControlName="currency" id="reg-currency" class="form-select">
+                <option value="" disabled>Currency</option>
                 <option value="XAF">XAF — Franc CFA BEAC</option>
                 <option value="USD">USD — Dollar américain</option>
                 <option value="EUR">EUR — Euro</option>
@@ -69,13 +72,14 @@ import { NgOptimizedImage } from '@angular/common';
             <!-- Actions -->
             <div class="auth-actions">
               <a routerLink="/login" class="btn-ghost">Retour</a>
-              <button type="submit" class="btn-primary">S'Enregistrer</button>
+              <button type="submit" class="btn-primary" [disabled]="form.invalid || loading()">
+                {{ loading() ? 'En cours...' : "S'Enregistrer" }}
+              </button>
             </div>
           </form>
         </div>
       </div>
 
-      <!-- Right: Hero -->
       <div class="auth-hero-side">
         <img ngSrc="img/bank-3d-vector.png" alt="Paiement facile et accessible"
              class="auth-hero-img" width="480" height="400" priority />
@@ -166,5 +170,36 @@ import { NgOptimizedImage } from '@angular/common';
   `]
 })
 export class RegisterComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
   readonly showPw = signal(false);
+  readonly loading = signal(false);
+  readonly errorMsg = signal('');
+
+  readonly form = this.fb.nonNullable.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    currency: ['', Validators.required],
+  });
+
+  onSubmit() {
+    if (this.form.invalid) return;
+
+    this.loading.set(true);
+    this.errorMsg.set('');
+
+    this.authService.register(this.form.getRawValue()).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.errorMsg.set(err.error?.message || 'Une erreur est survenue lors de la création du compte.');
+      }
+    });
+  }
 }
